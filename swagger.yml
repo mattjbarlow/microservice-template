@@ -1,0 +1,430 @@
+swagger: '2.0'
+info:
+  version: '1.0.0'
+  title: Microservice Title
+  description: Microservice Description
+basePath: /v1
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /items:
+    get:
+      description: List all items
+      operationId: list_items
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: item response
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/item'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errorModel'
+      x-amazon-apigateway-integration:
+        type: "aws"
+        uri: "{{ LAMBDA_URI }}"
+        credentials: "{{ APIGATEWAY_ROLE }}"
+        httpMethod: "POST"
+        requestTemplates:
+          application/json: |
+            {
+              "parameters": {
+                "gateway": {
+                  "stage" : "$context.stage",
+                  "request-id" : "$context.requestId",
+                  "resource-path" : "$context.resourcePath",
+                  "http-method" : "$context.httpMethod",
+                  "stage-variables" : {
+                    #foreach($key in $stageVariables.keySet())
+                    "$key" : "$util.escapeJavaScript($stageVariables.get($key))" #if($foreach.hasNext),#end
+                    #end
+                    }
+                },
+                "requestor": {
+                  "source-ip" : "$context.identity.sourceIp",
+                  "user-agent" : "$context.identity.userAgent",
+                  "account-id" : "$context.identity.accountId",
+                  "api-key" : "$context.identity.apiKey",
+                  "caller" : "$context.identity.caller",
+                  "user" : "$context.identity.user",
+                  "user-arn" : "$context.identity.userArn"
+                },
+                "request": {
+                  "headers": {
+                    #foreach($param in $input.params().header.keySet())
+                    "$param": "$util.escapeJavaScript($input.params().header.get($param))" #if($foreach.hasNext),#end
+                    #end
+                  },
+                  "query-params": {
+                    #foreach($param in $input.params().querystring.keySet())
+                    "$param": "$util.escapeJavaScript($input.params().querystring.get($param))" #if($foreach.hasNext),#end
+                    #end
+                  },
+                  "path-params": {
+                    #foreach($param in $input.params().path.keySet())
+                    "$param": "$util.escapeJavaScript($input.params().path.get($param))" #if($foreach.hasNext),#end
+                    #end
+                  },
+                  "body": $input.json('$')
+                }
+              }
+            }
+        responses:
+          '.*500: Internal Server Error.*':
+            statusCode: '500'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 500, \"message\": $input.json('$.errorMessage')}}"
+          '.*400: Bad Request.*':
+            statusCode: '400'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 400, \"message\": $input.json('$.errorMessage')}}"
+          '.*401: Unauthorized.*':
+            statusCode: '401'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 401, \"message\": $input.json('$.errorMessage')}}"
+          '.*403: Unauthorized.*':
+            statusCode: '403'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 403, \"message\": $input.json('$.errorMessage')}}"
+          '.*404: Not Found.*':
+            statusCode: '404'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 404, \"message\": $input.json('$.errorMessage')}}"
+          default:
+            statusCode: '200'
+
+    post:
+      description: Creates a new item.
+      operationId: create_item
+      produces:
+        - application/json
+      parameters:
+        - name: item
+          in: body
+          description: item description
+          required: true
+          schema:
+            $ref: '#/definitions/newItem'
+      responses:
+        '200':
+          description: item response
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/item'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errorModel'
+      x-amazon-apigateway-integration:
+        type: "aws"
+        uri: "{{ LAMBDA_URI }}"
+        credentials: "{{ APIGATEWAY_ROLE }}"
+        httpMethod: "POST"
+        requestTemplates:
+          application/json: |
+            {
+              "parameters": {
+                "gateway": {
+                  "stage" : "$context.stage",
+                  "request-id" : "$context.requestId",
+                  "resource-path" : "$context.resourcePath",
+                  "http-method" : "$context.httpMethod",
+                  "stage-variables" : {
+                    #foreach($key in $stageVariables.keySet())
+                    "$key" : "$util.escapeJavaScript($stageVariables.get($key))" #if($foreach.hasNext),#end
+                    #end
+                    }
+                },
+                "requestor": {
+                  "source-ip" : "$context.identity.sourceIp",
+                  "user-agent" : "$context.identity.userAgent",
+                  "account-id" : "$context.identity.accountId",
+                  "api-key" : "$context.identity.apiKey",
+                  "caller" : "$context.identity.caller",
+                  "user" : "$context.identity.user",
+                  "user-arn" : "$context.identity.userArn"
+                },
+                "request": {
+                  "headers": {
+                    #foreach($param in $input.params().header.keySet())
+                    "$param": "$util.escapeJavaScript($input.params().header.get($param))" #if($foreach.hasNext),#end
+                    #end
+                  },
+                  "query-params": {
+                    #foreach($param in $input.params().querystring.keySet())
+                    "$param": "$util.escapeJavaScript($input.params().querystring.get($param))" #if($foreach.hasNext),#end
+                    #end
+                  },
+                  "path-params": {
+                    #foreach($param in $input.params().path.keySet())
+                    "$param": "$util.escapeJavaScript($input.params().path.get($param))" #if($foreach.hasNext),#end
+                    #end
+                  },
+                  "body": $input.json('$')
+                }
+              }
+            }
+        responses:
+          '.*500: Internal Server Error.*':
+            statusCode: '500'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 500, \"message\": $input.json('$.errorMessage')}}"
+          '.*400: Bad Request.*':
+            statusCode: '400'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 400, \"message\": $input.json('$.errorMessage')}}"
+          '.*401: Unauthorized.*':
+            statusCode: '401'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 401, \"message\": $input.json('$.errorMessage')}}"
+          '.*403: Unauthorized.*':
+            statusCode: '403'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 403, \"message\": $input.json('$.errorMessage')}}"
+          '.*404: Not Found.*':
+            statusCode: '404'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 404, \"message\": $input.json('$.errorMessage')}}"
+          default:
+            statusCode: '200'
+
+  /items/{id}:
+    get:
+      description: Returns an item based on ID.
+      operationId: describe_item
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: ID of item to fetch
+          required: true
+          type: string
+      responses:
+        '200':
+          description: item response
+          schema:
+            $ref: '#/definitions/item'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errorModel'
+      x-amazon-apigateway-integration:
+        type: "aws"
+        uri: "{{ LAMBDA_URI }}"
+        credentials: "{{ APIGATEWAY_ROLE }}"
+        httpMethod: "POST"
+        requestTemplates:
+          application/json: |
+            {
+              "parameters": {
+                "gateway": {
+                  "stage" : "$context.stage",
+                  "request-id" : "$context.requestId",
+                  "resource-path" : "$context.resourcePath",
+                  "http-method" : "$context.httpMethod",
+                  "stage-variables" : {
+                    #foreach($key in $stageVariables.keySet())
+                    "$key" : "$util.escapeJavaScript($stageVariables.get($key))" #if($foreach.hasNext),#end
+                    #end
+                    }
+                },
+                "requestor": {
+                  "source-ip" : "$context.identity.sourceIp",
+                  "user-agent" : "$context.identity.userAgent",
+                  "account-id" : "$context.identity.accountId",
+                  "api-key" : "$context.identity.apiKey",
+                  "caller" : "$context.identity.caller",
+                  "user" : "$context.identity.user",
+                  "user-arn" : "$context.identity.userArn"
+                },
+                "request": {
+                  "headers": {
+                    #foreach($param in $input.params().header.keySet())
+                    "$param": "$util.escapeJavaScript($input.params().header.get($param))" #if($foreach.hasNext),#end
+                    #end
+                  },
+                  "query-params": {
+                    #foreach($param in $input.params().querystring.keySet())
+                    "$param": "$util.escapeJavaScript($input.params().querystring.get($param))" #if($foreach.hasNext),#end
+                    #end
+                  },
+                  "path-params": {
+                    #foreach($param in $input.params().path.keySet())
+                    "$param": "$util.escapeJavaScript($input.params().path.get($param))" #if($foreach.hasNext),#end
+                    #end
+                  },
+                  "body": $input.json('$')
+                }
+              }
+            }
+        responses:
+          '.*500: Internal Server Error.*':
+            statusCode: '500'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 500, \"message\": $input.json('$.errorMessage')}}"
+          '.*400: Bad Request.*':
+            statusCode: '400'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 400, \"message\": $input.json('$.errorMessage')}}"
+          '.*401: Unauthorized.*':
+            statusCode: '401'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 401, \"message\": $input.json('$.errorMessage')}}"
+          '.*403: Unauthorized.*':
+            statusCode: '403'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 403, \"message\": $input.json('$.errorMessage')}}"
+          '.*404: Not Found.*':
+            statusCode: '404'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 404, \"message\": $input.json('$.errorMessage')}}"
+          default:
+            statusCode: '200'
+    delete:
+      description: deletes a single item based on the ID supplied
+      operationId: delete_item
+      parameters:
+        - name: id
+          in: path
+          description: ID of item to delete
+          required: true
+          type: string
+      responses:
+        '204':
+          description: item deleted
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errorModel'
+      x-amazon-apigateway-integration:
+        type: "aws"
+        uri: "{{ LAMBDA_URI }}"
+        credentials: "{{ APIGATEWAY_ROLE }}"
+        httpMethod: "POST"
+        requestTemplates:
+          application/json: |
+            {
+              "parameters": {
+                "gateway": {
+                  "stage" : "$context.stage",
+                  "request-id" : "$context.requestId",
+                  "resource-path" : "$context.resourcePath",
+                  "http-method" : "$context.httpMethod",
+                  "stage-variables" : {
+                    #foreach($key in $stageVariables.keySet())
+                    "$key" : "$util.escapeJavaScript($stageVariables.get($key))" #if($foreach.hasNext),#end
+                    #end
+                    }
+                },
+                "requestor": {
+                  "source-ip" : "$context.identity.sourceIp",
+                  "user-agent" : "$context.identity.userAgent",
+                  "account-id" : "$context.identity.accountId",
+                  "api-key" : "$context.identity.apiKey",
+                  "caller" : "$context.identity.caller",
+                  "user" : "$context.identity.user",
+                  "user-arn" : "$context.identity.userArn"
+                },
+                "request": {
+                  "headers": {
+                    #foreach($param in $input.params().header.keySet())
+                    "$param": "$util.escapeJavaScript($input.params().header.get($param))" #if($foreach.hasNext),#end
+                    #end
+                  },
+                  "query-params": {
+                    #foreach($param in $input.params().querystring.keySet())
+                    "$param": "$util.escapeJavaScript($input.params().querystring.get($param))" #if($foreach.hasNext),#end
+                    #end
+                  },
+                  "path-params": {
+                    #foreach($param in $input.params().path.keySet())
+                    "$param": "$util.escapeJavaScript($input.params().path.get($param))" #if($foreach.hasNext),#end
+                    #end
+                  },
+                  "body": $input.json('$')
+                }
+              }
+            }
+        responses:
+          '.*500: Internal Server Error.*':
+            statusCode: '500'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 500, \"message\": $input.json('$.errorMessage')}}"
+          '.*400: Bad Request.*':
+            statusCode: '400'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 400, \"message\": $input.json('$.errorMessage')}}"
+          '.*401: Unauthorized.*':
+            statusCode: '401'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 401, \"message\": $input.json('$.errorMessage')}}"
+          '.*403: Unauthorized.*':
+            statusCode: '403'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 403, \"message\": $input.json('$.errorMessage')}}"
+          '.*404: Not Found.*':
+            statusCode: '404'
+            responseTemplates:
+              'application/json':
+                "{\"error\": {\"code\": 404, \"message\": $input.json('$.errorMessage')}}"
+          default:
+            statusCode: '200'
+definitions:
+  item:
+    type: object
+    required:
+      - id
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+  newItem:
+    type: object
+    required:
+      - name
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+  errorModel:
+    type: object
+    required:
+      - code
+      - message
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string

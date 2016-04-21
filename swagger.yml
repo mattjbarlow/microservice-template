@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   version: '1.0.0'
-  title: Microservice Title
+  title: {{ prefix }}  Microservice Title
   description: Microservice Description
 basePath: /v1
 schemes:
@@ -30,7 +30,7 @@ paths:
             $ref: '#/definitions/errorModel'
       x-amazon-apigateway-integration:
         type: "aws"
-        uri: "{{ LAMBDA_URI }}"
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/{{ LAMBDA_URI }}/invocations"
         credentials: "{{ APIGATEWAY_ROLE }}"
         httpMethod: "POST"
         requestTemplates:
@@ -131,7 +131,7 @@ paths:
             $ref: '#/definitions/errorModel'
       x-amazon-apigateway-integration:
         type: "aws"
-        uri: "{{ LAMBDA_URI }}"
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/{{ LAMBDA_URI }}/invocations"
         credentials: "{{ APIGATEWAY_ROLE }}"
         httpMethod: "POST"
         requestTemplates:
@@ -230,7 +230,7 @@ paths:
             $ref: '#/definitions/errorModel'
       x-amazon-apigateway-integration:
         type: "aws"
-        uri: "{{ LAMBDA_URI }}"
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/{{ LAMBDA_URI }}/invocations"
         credentials: "{{ APIGATEWAY_ROLE }}"
         httpMethod: "POST"
         requestTemplates:
@@ -323,7 +323,7 @@ paths:
             $ref: '#/definitions/errorModel'
       x-amazon-apigateway-integration:
         type: "aws"
-        uri: "{{ LAMBDA_URI }}"
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/{{ LAMBDA_URI }}/invocations"
         credentials: "{{ APIGATEWAY_ROLE }}"
         httpMethod: "POST"
         requestTemplates:

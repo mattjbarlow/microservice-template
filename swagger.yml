@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   version: '1.0.0'
-  title: {{ prefix }}  Microservice Title
+  title: "{{ prefix }} Microservice Title"
   description: Microservice Description
 basePath: /v1
 schemes:
@@ -11,33 +11,47 @@ consumes:
 produces:
   - application/json
 paths:
-  /items:
+  /atq:
     get:
       description: List all items
       operationId: list_items
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: item response
           schema:
             type: array
             items:
               $ref: '#/definitions/item'
+        400:
+          description: Bad Request
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+        404:
+          description: User ID Not Found
+        500:
+          description: API fault
+        503:
+          description: Service Unavailable
         default:
           description: unexpected error
           schema:
             $ref: '#/definitions/errorModel'
+{% if LambdaArn is defined %}
       x-amazon-apigateway-integration:
         type: "aws"
-        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/{{ LAMBDA_URI }}/invocations"
-        credentials: "{{ APIGATEWAY_ROLE }}"
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/{{ LambdaArn }}/invocations"
+        credentials: "{{ APIGatewayRole }}"
         httpMethod: "POST"
         requestTemplates:
           application/json: |
             {
               "parameters": {
                 "gateway": {
+                  "operationId": "list_items",
                   "stage" : "$context.stage",
                   "request-id" : "$context.requestId",
                   "resource-path" : "$context.resourcePath",
@@ -105,6 +119,7 @@ paths:
                 "{\"error\": {\"code\": 404, \"message\": $input.json('$.errorMessage')}}"
           default:
             statusCode: '200'
+{% endif %}
 
     post:
       description: Creates a new item.
@@ -114,31 +129,43 @@ paths:
       parameters:
         - name: item
           in: body
-          description: item description
+          description: item to add
           required: true
           schema:
             $ref: '#/definitions/newItem'
       responses:
-        '200':
+        200:
           description: item response
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/item'
+            $ref: '#/definitions/item'
+        400:
+          description: Bad Request
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+        404:
+          description: User ID Not Found
+        500:
+          description: API fault
+        503:
+          description: Service Unavailable
         default:
           description: unexpected error
           schema:
             $ref: '#/definitions/errorModel'
+{% if LambdaArn is defined %}
       x-amazon-apigateway-integration:
         type: "aws"
-        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/{{ LAMBDA_URI }}/invocations"
-        credentials: "{{ APIGATEWAY_ROLE }}"
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/{{ LambdaArn }}/invocations"
+        credentials: "{{ APIGatewayRole }}"
         httpMethod: "POST"
         requestTemplates:
           application/json: |
             {
               "parameters": {
                 "gateway": {
+                  "operationId": "create_item",
                   "stage" : "$context.stage",
                   "request-id" : "$context.requestId",
                   "resource-path" : "$context.resourcePath",
@@ -206,8 +233,9 @@ paths:
                 "{\"error\": {\"code\": 404, \"message\": $input.json('$.errorMessage')}}"
           default:
             statusCode: '200'
+{% endif %}
 
-  /items/{id}:
+  /atq/{id}:
     get:
       description: Returns an item based on ID.
       operationId: describe_item
@@ -220,18 +248,31 @@ paths:
           required: true
           type: string
       responses:
-        '200':
+        200:
           description: item response
           schema:
             $ref: '#/definitions/item'
+        400:
+          description: Bad Request
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+        404:
+          description: User ID Not Found
+        500:
+          description: API fault
+        503:
+          description: Service Unavailable
         default:
           description: unexpected error
           schema:
             $ref: '#/definitions/errorModel'
+{% if LambdaArn is defined %}
       x-amazon-apigateway-integration:
         type: "aws"
-        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/{{ LAMBDA_URI }}/invocations"
-        credentials: "{{ APIGATEWAY_ROLE }}"
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/{{ LambdaArn }}/invocations"
+        credentials: "{{ APIGatewayRole }}"
         httpMethod: "POST"
         requestTemplates:
           application/json: |
@@ -240,6 +281,7 @@ paths:
                 "gateway": {
                   "stage" : "$context.stage",
                   "request-id" : "$context.requestId",
+                  "operationId": "describe_item",
                   "resource-path" : "$context.resourcePath",
                   "http-method" : "$context.httpMethod",
                   "stage-variables" : {
@@ -305,6 +347,8 @@ paths:
                 "{\"error\": {\"code\": 404, \"message\": $input.json('$.errorMessage')}}"
           default:
             statusCode: '200'
+{% endif %}
+
     delete:
       description: deletes a single item based on the ID supplied
       operationId: delete_item
@@ -315,16 +359,29 @@ paths:
           required: true
           type: string
       responses:
-        '204':
+        204:
           description: item deleted
+        400:
+          description: Bad Request
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+        404:
+          description: User ID Not Found
+        500:
+          description: API fault
+        503:
+          description: Service Unavailable
         default:
           description: unexpected error
           schema:
             $ref: '#/definitions/errorModel'
+{% if LambdaArn is defined %}
       x-amazon-apigateway-integration:
         type: "aws"
-        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/{{ LAMBDA_URI }}/invocations"
-        credentials: "{{ APIGATEWAY_ROLE }}"
+        uri: "arn:aws:apigateway:us-east-1:lambda:path/2015-03-31/functions/{{ LambdaArn }}/invocations"
+        credentials: "{{ APIGatewayRole }}"
         httpMethod: "POST"
         requestTemplates:
           application/json: |
@@ -333,6 +390,7 @@ paths:
                 "gateway": {
                   "stage" : "$context.stage",
                   "request-id" : "$context.requestId",
+                  "operationId": "delete_item",
                   "resource-path" : "$context.resourcePath",
                   "http-method" : "$context.httpMethod",
                   "stage-variables" : {
@@ -397,7 +455,9 @@ paths:
               'application/json':
                 "{\"error\": {\"code\": 404, \"message\": $input.json('$.errorMessage')}}"
           default:
-            statusCode: '200'
+            statusCode: '204'
+{% endif %}
+
 definitions:
   item:
     type: object

@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "Service Template",
+    "Description": "Microservice Template",
     "Parameters": {
         "S3Bucket": {
             "Description": "Name of the S3 bucket containing Lambda function.",
@@ -15,7 +15,7 @@
         "DynamoDBTable": {
             "Description": "Name of the Dynamo DB Table to hold service data.",
             "Type": "String",
-            "Default": "service-data"
+            "Default": "service-items"
         },
         "ApiId": {
             "Description": "API Gateway App Id. E.g. 1yc6td9zjj",
@@ -40,22 +40,14 @@
     },
     "Conditions": {
         "ApiGatewayDeployed": {"Fn::Not": [{"Fn::Equals": ["", {"Ref": "ApiId"}]}]},
-        "DeployLambda": {"Fn::Not": [{"Fn::Equals": ["", {"Ref": "S3Key"}]}]},
-        "CreateBucket": {"Fn::Not": [{"Fn::Equals": ["", {"Ref": "S3Bucket"}]}]}
+        "DeployLambda": {"Fn::Not": [{"Fn::Equals": ["", {"Ref": "S3Key"}]}]}
     },
     "Resources": {
-        "S3LambdaBucket": {
-            "Condition": "CreateBucket",
-            "Type" : "AWS::S3::Bucket",
-            "Properties" : {
-                "BucketName" : {"Ref": "S3Bucket"}
-            }
-        },
         "BackendDynamoDBTable": {
             "Type": "AWS::DynamoDB::Table",
             "Properties": {
                 "AttributeDefinitions": [{
-                    "AttributeName": "id",
+                    "AttributeName": "d",
                     "AttributeType": "S"
                 }],
                 "KeySchema": [{
@@ -192,8 +184,7 @@
     },
     "Outputs": {
         "S3Bucket": {
-            "Value": {"Ref": "S3Bucket"},
-            "Condition": "CreateBucket"
+            "Value": {"Ref": "S3Bucket"}
         },
         "LambdaArn": {
             "Value": {"Fn::GetAtt": ["Lambda", "Arn"]},

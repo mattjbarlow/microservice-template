@@ -11,7 +11,7 @@ consumes:
 produces:
   - application/json
 paths:
-  /atq:
+  /items:
     get:
       description: List all items
       operationId: list_items
@@ -235,7 +235,7 @@ paths:
             statusCode: '200'
 {% endif %}
 
-  /atq/{id}:
+  /items/{id}:
     get:
       description: Returns an item based on ID.
       operationId: describe_item

@@ -47,7 +47,7 @@
             "Type": "AWS::DynamoDB::Table",
             "Properties": {
                 "AttributeDefinitions": [{
-                    "AttributeName": "d",
+                    "AttributeName": "id",
                     "AttributeType": "S"
                 }],
                 "KeySchema": [{

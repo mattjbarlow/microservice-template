@@ -29,7 +29,7 @@
       region: "{{ region }}"
       disable_rollback: true
   - name: Get API Gateway ID
-    shell: aws apigateway get-rest-apis |jq -r '.items[] | select(.name | contains("{{ prefix }} Microservice Title")) | .id'
+    shell: aws apigateway get-rest-apis |jq -r '.items[] | select(.name | contains("{{ title }}")) | .id'
     register: apigwid
   - name: Delete API Gateway
     shell: aws apigateway delete-rest-api --rest-api-id "{{ apigwid.stdout }}"

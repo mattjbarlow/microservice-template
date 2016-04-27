@@ -1,4 +1,5 @@
 prefix: "anon"
+title: "{{prefix}} microservice"
 lambda_s3_bucket: "{{prefix}}.bucket.name"
 stack_name: "{{prefix}}-service"
 dynamodb_table_name: "{{prefix}}-dynamo-table"

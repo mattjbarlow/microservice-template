@@ -59,7 +59,7 @@
     when:
       s3bucket.changed
   - name: Get API Gateway ID
-    shell: aws apigateway get-rest-apis |jq -r '.items[] | select(.name | contains("{{ prefix }} Microservice Title")) | .id'
+    shell: aws apigateway get-rest-apis |jq -r '.items[] | select(.name | contains("{{ title }}")) | .id'
     register: apigwid
 
   # Create AWS Resources

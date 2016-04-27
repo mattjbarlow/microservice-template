@@ -1,12 +1,10 @@
 import logging
-import pprint
+import json
 
 
 LOG = logging.getLogger()
 logging.basicConfig()
 LOG.setLevel(logging.INFO)
-pp = pprint.PrettyPrinter(indent=4)
-
 
 def lambda_handler(event, context):
-    pp.pprint(event)
+    LOG.info(json.dumps(event, indent=1))
